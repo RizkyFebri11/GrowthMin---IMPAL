@@ -2,25 +2,6 @@
 
 Dokumen ini berisi panduan cara menggunakan API GrowthMin melalui Postman dan penjelasan untuk masing-masing *endpoint* yang tersedia.
 
-## 🛠️ Cara Setup Manual di Postman (Tanpa Import)
-
-Jika Anda tidak ingin menggunakan fitur Import, Anda bisa memasukkan setiap API secara manual ke Postman dengan langkah-langkah berikut:
-
-1. Buka aplikasi Postman.
-2. Klik ikon tambah (**+**) di bagian atas untuk membuat tab **New Request** baru.
-3. Ubah tipe *method* di sebelah kiri kotak URL sesuai dengan API yang akan dites (misal: ubah `GET` menjadi `POST`).
-4. Masukkan URL lengkap pada kotak URL (misalnya: `http://localhost:3000/api/anggota`). Pastikan server Next.js Anda sedang berjalan (`npm run dev`).
-5. **Khusus untuk request `POST`** (yang memerlukan data):
-   - Klik tab **Body** yang ada di bawah kotak URL.
-   - Pilih opsi **raw**.
-   - Pada *dropdown* teks di sebelahnya (biasanya *Text*), ubah menjadi **JSON**.
-   - *Copy* format JSON dari bagian "Contoh Request Body" di daftar bawah ini, lalu *paste* ke dalam kotak editor Postman.
-6. Klik tombol biru **Send** di sebelah kanan atas untuk mengirim request.
-7. (Opsional) Anda bisa menyimpan request ini dengan menekan tombol **Save** (atau `Ctrl+S`), lalu beri nama request (contoh: "Create Anggota") dan simpan ke dalam sebuah *Collection* baru.
-8. Ulangi langkah di atas untuk setiap *endpoint* yang ingin Anda tes.
-
----
-
 ## 🚀 Alur Pengujian API yang Disarankan
 
 Untuk memastikan seluruh API berjalan sesuai fungsinya dan tidak ada *error* terkait *relational data* (data yang saling bergantung di database), ikuti urutan berikut:
