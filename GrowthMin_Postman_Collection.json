@@ -1,0 +1,231 @@
+{
+  "info": {
+    "name": "GrowthMin API",
+    "description": "API collection for GrowthMin Next.js Application",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Anggota",
+      "item": [
+        {
+          "name": "Create Anggota",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Febri\",\n  \"email\": \"febri@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"manager\",\n  \"tim\": \"Marketing\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/anggota",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "anggota"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Target",
+      "item": [
+        {
+          "name": "Create Target",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_user\": 1,\n  \"bulan\": 5,\n  \"tahun\": 2026,\n  \"tim\": \"Marketing\",\n  \"target_leads\": 100,\n  \"target_closing\": 20,\n  \"target_revenue\": 50000000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/target",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "target"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tracking (Log Harian)",
+      "item": [
+        {
+          "name": "Create Daily Log",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_user\": 1,\n  \"tim\": \"Marketing\",\n  \"tanggal\": \"2026-05-01\",\n  \"jml_leads\": 10,\n  \"jml_closing\": 2,\n  \"nominal_revenue\": 5000000,\n  \"nominal_spend\": 1000000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tracking",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tracking"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "KPI & Laporan",
+      "item": [
+        {
+          "name": "Calculate & Save KPI",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bulan\": 5,\n  \"tahun\": 2026,\n  \"id_user\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/kpi/calculate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "kpi",
+                "calculate"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Laporan Performa",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/laporan?bulan=5&tahun=2026",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "laporan"
+              ],
+              "query": [
+                {
+                  "key": "bulan",
+                  "value": "5"
+                },
+                {
+                  "key": "tahun",
+                  "value": "2026"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Leaderboard",
+      "item": [
+        {
+          "name": "Get Leaderboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/leaderboard?bulan=5&tahun=2026",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "leaderboard"
+              ],
+              "query": [
+                {
+                  "key": "bulan",
+                  "value": "5"
+                },
+                {
+                  "key": "tahun",
+                  "value": "2026"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Evaluasi",
+      "item": [
+        {
+          "name": "Create Evaluasi",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_kpi\": 1,\n  \"id_manajer\": 1,\n  \"catatan\": \"Performa sangat baik bulan ini, terus tingkatkan closing.\",\n  \"tanggal\": \"2026-05-04\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/evaluasi",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "evaluasi"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
