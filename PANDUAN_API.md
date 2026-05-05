@@ -2,7 +2,7 @@
 
 Dokumen ini berisi panduan cara menggunakan API GrowthMin melalui Postman dan penjelasan untuk masing-masing *endpoint* yang tersedia.
 
-## 🚀 Alur Pengujian API yang Disarankan
+## Alur Pengujian API yang Disarankan
 
 Untuk memastikan seluruh API berjalan sesuai fungsinya dan tidak ada *error* terkait *relational data* (data yang saling bergantung di database), ikuti urutan berikut:
 
@@ -15,7 +15,7 @@ Untuk memastikan seluruh API berjalan sesuai fungsinya dan tidak ada *error* ter
 
 ---
 
-## 📖 Daftar Endpoint
+## Daftar Endpoint
 
 Berikut adalah rincian masing-masing *endpoint* yang sudah tersedia di dalam collection Postman.
 
