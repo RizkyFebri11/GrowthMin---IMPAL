@@ -7,8 +7,8 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, currentUser }) => {
   return (
     <aside className="w-64 bg-white border-r border-slate-100 fixed h-full flex flex-col z-20">
       <div className="p-6">
-        <div className="bg-slate-200 h-12 rounded flex items-center justify-center font-bold text-slate-500 text-sm tracking-widest mb-8">
-          [LOGO]
+        <div className="h-12 flex items-center justify-center mb-8">
+          <img src="/Logo GrowthMin.png" alt="GrowthMin Logo" className="max-h-full max-w-full object-contain" />
         </div>
         <nav className="space-y-2">
           <button
