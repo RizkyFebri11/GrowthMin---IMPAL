@@ -7,6 +7,7 @@ import Dashboard from '../pages/Dashboard';
 import KelolaTarget from '../pages/KelolaTarget';
 import Leaderboard from '../pages/Leaderboard';
 import InputTracking from '../pages/InputTracking';
+import Evaluasi from '../pages/Evaluasi';
 import Login from '../pages/Login';
 
 const App = () => {
@@ -33,6 +34,7 @@ const App = () => {
         {activeTab === 'targets' && <KelolaTarget currentUser={currentUser} />}
         {activeTab === 'tracking' && <InputTracking currentUser={currentUser} />}
         {activeTab === 'leaderboard' && <Leaderboard currentUser={currentUser} />}
+        {activeTab === 'evaluasi' && <Evaluasi currentUser={currentUser} />}
       </main>
     </div>
   );

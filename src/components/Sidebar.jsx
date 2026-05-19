@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Target, Trophy, LogOut, FileText } from 'lucide-react';
+import { LayoutDashboard, Target, Trophy, LogOut, FileText, MessageSquare } from 'lucide-react';
 
 const Sidebar = ({ activeTab, setActiveTab, onLogout, currentUser }) => {
   const isManager = currentUser.role === 'manajer';
@@ -39,6 +39,13 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, currentUser }) => {
             className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'leaderboard' ? 'bg-[#5D5FEF] text-white' : 'text-slate-600 hover:bg-slate-50'}`}
           >
             <Trophy size={18} /> Leaderboard
+          </button>
+
+          <button
+            onClick={() => setActiveTab('evaluasi')}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'evaluasi' ? 'bg-[#5D5FEF] text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+          >
+            <MessageSquare size={18} /> Evaluasi
           </button>
         </nav>
       </div>
