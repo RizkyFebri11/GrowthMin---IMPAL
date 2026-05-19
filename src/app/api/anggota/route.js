@@ -17,6 +17,6 @@ export async function POST(request) {
 
     return NextResponse.json({ message: 'Data anggota berhasil disimpan', data }, { status: 201 });
   } catch (err) {
-    return NextResponse.json({ error: 'Terjadi kesalahan pada server' }, { status: 500 });
+    return NextResponse.json({ error: err.message || err.toString() }, { status: 500 });
   }
 }

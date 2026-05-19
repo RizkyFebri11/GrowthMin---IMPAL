@@ -27,7 +27,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nama\": \"Febri\",\n  \"email\": \"febri@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"manager\",\n  \"tim\": \"Marketing\"\n}"
+              "raw": "{\n  \"nama\": \"Febri\",\n  \"email\": \"febri@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"manajer\",\n  \"tim\": \"Marketing\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/anggota",
