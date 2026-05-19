@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, MessageSquare } from 'lucide-react';
+import { ChevronRight, MessageSquare, Printer, Calendar } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import TopStatsRow from '../components/TopStatsRow';
 import { EVALUATIONS } from '../data/mockData';
@@ -16,7 +16,20 @@ const Dashboard = ({ currentUser }) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="font-bold text-lg text-slate-800">Tren Performa Bulanan</h3>
+            <h3 className="font-bold text-lg text-slate-800">Laporan Performa (Tren Bulanan)</h3>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg">
+                <Calendar size={16} className="text-slate-500" />
+                <select className="bg-transparent text-sm font-medium text-slate-700 outline-none cursor-pointer">
+                  <option>Semua Rentang Waktu</option>
+                  <option>Bulan Ini (Mei 2026)</option>
+                  <option>Bulan Lalu (April 2026)</option>
+                </select>
+              </div>
+              <button onClick={() => alert('Dokumen Laporan PDF sedang diunduh...')} className="flex items-center gap-2 bg-[#5D5FEF] hover:bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">
+                <Printer size={16} /> Cetak PDF
+              </button>
+            </div>
           </div>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
