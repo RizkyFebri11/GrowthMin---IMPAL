@@ -3,6 +3,8 @@ import TopStatsRow from '../components/TopStatsRow';
 import { MOCK_USERS, EVALUATIONS } from '../data/mockData';
 
 const Evaluasi = ({ currentUser }) => {
+  if (!currentUser) return null;
+
   const [selectedUser, setSelectedUser] = useState('');
   const [catatan, setCatatan] = useState('');
   const isManager = currentUser.role === 'manajer';
