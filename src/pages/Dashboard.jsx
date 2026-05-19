@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { ChevronRight, MessageSquare, Printer, Calendar } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import TopStatsRow from '../components/TopStatsRow';
@@ -7,6 +7,18 @@ import { useDashboardData } from '../hooks/useDashboardData';
 
 const Dashboard = ({ currentUser }) => {
   const { chartData, leaderboard, isLoading } = useDashboardData(currentUser);
+  const [filterMonth, setFilterMonth] = useState('Semua Rentang Waktu');
+
+  const filteredChartData = useMemo(() => {
+    if (!chartData) return [];
+    if (filterMonth === 'Bulan Ini (Mei 2026)') {
+      return chartData.filter(d => d.name === 'May');
+    } else if (filterMonth === 'Bulan Lalu (April 2026)') {
+      return chartData.filter(d => d.name === 'Apr');
+    }
+    return chartData;
+  }, [chartData, filterMonth]);
+
   if (isLoading) return <div className="p-10 flex justify-center"><div className="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full"></div></div>;
 
   return (
@@ -20,10 +32,14 @@ const Dashboard = ({ currentUser }) => {
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg">
                 <Calendar size={16} className="text-slate-500" />
-                <select className="bg-transparent text-sm font-medium text-slate-700 outline-none cursor-pointer">
-                  <option>Semua Rentang Waktu</option>
-                  <option>Bulan Ini (Mei 2026)</option>
-                  <option>Bulan Lalu (April 2026)</option>
+                <select 
+                  value={filterMonth}
+                  onChange={(e) => setFilterMonth(e.target.value)}
+                  className="bg-transparent text-sm font-medium text-slate-700 outline-none cursor-pointer"
+                >
+                  <option value="Semua Rentang Waktu">Semua Rentang Waktu</option>
+                  <option value="Bulan Ini (Mei 2026)">Bulan Ini (Mei 2026)</option>
+                  <option value="Bulan Lalu (April 2026)">Bulan Lalu (April 2026)</option>
                 </select>
               </div>
               <button onClick={() => alert('Dokumen Laporan PDF sedang diunduh...')} className="flex items-center gap-2 bg-[#5D5FEF] hover:bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">
@@ -33,7 +49,7 @@ const Dashboard = ({ currentUser }) => {
           </div>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 20, right: 30, left: -20, bottom: 5 }}>
+              <BarChart data={filteredChartData} margin={{ top: 20, right: 30, left: -20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
                 <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
