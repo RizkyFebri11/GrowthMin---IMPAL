@@ -60,9 +60,9 @@ const Login = ({ onLogin }) => {
         {/* Left Side: Main Illustration */}
         <div className="hidden lg:flex w-1/2 justify-center items-center h-full relative z-10">
           <img
-            src="/login_illustration.png"
-            alt="Illustration"
-            className="w-full max-w-[848px] max-h-[697px] object-contain animate-in fade-in duration-700 pointer-events-none"
+            src="/logo_growthmin.png"
+            alt="Logo GrowthMin"
+            className="w-full max-w-[500px] max-h-[500px] object-contain animate-in fade-in duration-700 pointer-events-none"
           />
         </div>
 
