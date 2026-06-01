@@ -149,6 +149,7 @@ const Evaluasi = ({ currentUser }) => {
   };
 
   const handleDelete = async (id_evaluasi) => {
+    console.log('handleDelete called for ID:', id_evaluasi);
     if (!window.confirm('Apakah Anda yakin ingin menghapus evaluasi ini?')) return;
     try {
       const { error } = await supabase
@@ -235,7 +236,7 @@ const Evaluasi = ({ currentUser }) => {
               ) : (
                 evaluations.map((evalItem) => {
                   const isEditing = editingId === evalItem.id;
-                  const canEditOrDelete = isManager;
+                  const canEditOrDelete = isManager && Number(evalItem.id_manajer) === Number(currentUser?.id_user);
                   return (
                     <div key={evalItem.id} className="p-4 rounded-xl border border-slate-100 bg-slate-50 flex flex-col gap-2 relative">
                         <div className="flex justify-between items-center pr-20">
