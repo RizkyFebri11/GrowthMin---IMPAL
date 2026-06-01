@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TopStatsRow from '../components/TopStatsRow';
 import { supabase } from '../config/supabase';
 import { Trash2, Edit3, Check, X } from 'lucide-react';
+import Modal from '../components/Modal';
 
 const Evaluasi = ({ currentUser }) => {
   if (!currentUser) return null;
