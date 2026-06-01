@@ -233,10 +233,9 @@ const Evaluasi = ({ currentUser }) => {
               {evaluations.length === 0 ? (
                 <div className="p-6 text-center text-slate-500 text-sm italic">Belum ada evaluasi</div>
               ) : (
-                evaluations.map(evalItem => {
-                  const canEditOrDelete = isManager && evalItem.id_manajer === currentUser.id_user;
+                evaluations.map((evalItem) => {
                   const isEditing = editingId === evalItem.id;
-                  
+                  const canEditOrDelete = isManager;
                   return (
                     <div key={evalItem.id} className="p-4 rounded-xl border border-slate-100 bg-slate-50 flex flex-col gap-2 relative">
                         <div className="flex justify-between items-center pr-20">
