@@ -4,6 +4,7 @@ import { supabase } from '../config/supabase';
 export const useDashboardData = (currentUser) => {
   const [chartData, setChartData] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
+  const [evaluations, setEvaluations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -64,11 +65,53 @@ export const useDashboardData = (currentUser) => {
           }));
         setLeaderboard(sortedLeaderboard);
       }
+
+      // Fetch evaluations & kpi relation
+      const { data: evData } = await supabase.from('evaluations').select('*');
+      const { data: kpiData } = await supabase.from('kpi_results').select('id_kpi, id_user');
+      
+      const kpiUserMap = {};
+      if (kpiData) {
+        kpiData.forEach(k => {
+          kpiUserMap[k.id_kpi] = k.id_user;
+        });
+      }
+
+      const formattedEvaluations = [];
+      if (evData) {
+        // Sort by tanggal_input desc
+        const sortedEv = [...evData].sort((a, b) => new Date(b.tanggal_input) - new Date(a.tanggal_input));
+        
+        sortedEv.forEach(ev => {
+          const evaluatedUserId = kpiUserMap[ev.id_kpi];
+          if (currentUser?.role === 'staff' && evaluatedUserId !== currentUser?.id_user) {
+            return;
+          }
+          
+          const managerName = usersMap[ev.id_manajer]?.nama || 'Manager';
+          const staffName = usersMap[evaluatedUserId]?.nama || 'Staff';
+          
+          const d = new Date(ev.tanggal_input);
+          const dateStr = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+          
+          formattedEvaluations.push({
+            id: ev.id_evaluasi,
+            date: dateStr,
+            sender: `@${managerName}`,
+            text: ev.catatan_evaluasi,
+            staffName: staffName,
+            id_user: evaluatedUserId
+          });
+        });
+      }
+      setEvaluations(formattedEvaluations);
+
       setIsLoading(false);
     };
 
     if (currentUser) fetchData();
   }, [currentUser]);
 
-  return { chartData, leaderboard, isLoading };
+  return { chartData, leaderboard, evaluations, isLoading };
 };
+

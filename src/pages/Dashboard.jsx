@@ -2,11 +2,10 @@ import React, { useState, useMemo } from 'react';
 import { ChevronRight, MessageSquare, Printer, Calendar } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import TopStatsRow from '../components/TopStatsRow';
-import { EVALUATIONS } from '../data/mockData';
 import { useDashboardData } from '../hooks/useDashboardData';
 
 const Dashboard = ({ currentUser }) => {
-  const { chartData, leaderboard, isLoading } = useDashboardData(currentUser);
+  const { chartData, leaderboard, evaluations, isLoading } = useDashboardData(currentUser);
   const [filterMonth, setFilterMonth] = useState('Semua Rentang Waktu');
 
   const filteredChartData = useMemo(() => {
@@ -23,7 +22,7 @@ const Dashboard = ({ currentUser }) => {
 
   return (
     <div className="animate-in fade-in duration-300">
-      <TopStatsRow />
+      <TopStatsRow currentUser={currentUser} />
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
@@ -70,15 +69,22 @@ const Dashboard = ({ currentUser }) => {
           </div>
           
           <div className="flex-1 space-y-3">
-            {EVALUATIONS.map(ev => (
-              <div key={ev.id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-indigo-500">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-[10px] text-slate-400 font-medium">{ev.date}</span>
-                  <span className="text-[10px] text-indigo-600 font-medium">{ev.sender}</span>
+            {evaluations.length === 0 ? (
+              <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 text-xs text-slate-500 text-center italic">Belum ada catatan evaluasi</div>
+            ) : (
+              evaluations.slice(0, 3).map(ev => (
+                <div key={ev.id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-indigo-500">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-[10px] text-slate-400 font-medium">{ev.date}</span>
+                    <span className="text-[10px] text-indigo-600 font-medium">{ev.sender}</span>
+                  </div>
+                  <p className="text-xs text-slate-600 italic leading-relaxed">"{ev.text}"</p>
+                  {currentUser?.role === 'manajer' && (
+                    <span className="text-[9px] bg-indigo-50 text-indigo-500 px-1.5 py-0.5 rounded-md mt-1.5 inline-block font-medium">Staf: {ev.staffName}</span>
+                  )}
                 </div>
-                <p className="text-xs text-slate-600 italic leading-relaxed">"{ev.text}"</p>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           <div className="bg-[#2D2B52] rounded-2xl p-6 text-white shadow-lg mt-2 relative overflow-hidden">
@@ -134,3 +140,4 @@ const Dashboard = ({ currentUser }) => {
 };
 
 export default Dashboard;
+
