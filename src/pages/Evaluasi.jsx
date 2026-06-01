@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TopStatsRow from '../components/TopStatsRow';
 import { supabase } from '../config/supabase';
+import { Trash2, Edit3, Check, X } from 'lucide-react';
 
 const Evaluasi = ({ currentUser }) => {
   if (!currentUser) return null;
@@ -11,6 +12,9 @@ const Evaluasi = ({ currentUser }) => {
   const [evaluations, setEvaluations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [editingId, setEditingId] = useState(null);
+  const [editingText, setEditingText] = useState('');
   
   const isManager = currentUser.role === 'manajer';
 
@@ -53,7 +57,8 @@ const Evaluasi = ({ currentUser }) => {
             id: ev.id_evaluasi,
             sender: `@${managerName} (Untuk: ${staffName})`,
             date: dateStr,
-            text: ev.catatan_evaluasi
+            text: ev.catatan_evaluasi,
+            id_manajer: ev.id_manajer
           });
         });
       }
@@ -143,6 +148,53 @@ const Evaluasi = ({ currentUser }) => {
     }
   };
 
+  const handleDelete = async (id_evaluasi) => {
+    if (!window.confirm('Apakah Anda yakin ingin menghapus evaluasi ini?')) return;
+    try {
+      const { error } = await supabase
+        .from('evaluations')
+        .delete()
+        .eq('id_evaluasi', id_evaluasi);
+      if (error) throw error;
+      alert('Evaluasi berhasil dihapus!');
+      fetchEvaluationsData();
+    } catch (err) {
+      console.error(err);
+      alert(`Gagal menghapus evaluasi: ${err.message}`);
+    }
+  };
+
+  const handleStartEdit = (evalItem) => {
+    setEditingId(evalItem.id);
+    setEditingText(evalItem.text);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditingText('');
+  };
+
+  const handleSaveEdit = async (id_evaluasi) => {
+    if (!editingText.trim()) {
+      alert('Catatan evaluasi tidak boleh kosong!');
+      return;
+    }
+    try {
+      const { error } = await supabase
+        .from('evaluations')
+        .update({ catatan_evaluasi: editingText })
+        .eq('id_evaluasi', id_evaluasi);
+      if (error) throw error;
+      alert('Evaluasi berhasil diperbarui!');
+      setEditingId(null);
+      setEditingText('');
+      fetchEvaluationsData();
+    } catch (err) {
+      console.error(err);
+      alert(`Gagal memperbarui evaluasi: ${err.message}`);
+    }
+  };
+
   return (
     <div className="animate-in fade-in duration-300">
       <TopStatsRow currentUser={currentUser} />
@@ -181,15 +233,65 @@ const Evaluasi = ({ currentUser }) => {
               {evaluations.length === 0 ? (
                 <div className="p-6 text-center text-slate-500 text-sm italic">Belum ada evaluasi</div>
               ) : (
-                evaluations.map(evalItem => (
-                    <div key={evalItem.id} className="p-4 rounded-xl border border-slate-100 bg-slate-50 flex flex-col gap-2">
-                        <div className="flex justify-between items-center">
+                evaluations.map(evalItem => {
+                  const canEditOrDelete = isManager && evalItem.id_manajer === currentUser.id_user;
+                  const isEditing = editingId === evalItem.id;
+                  
+                  return (
+                    <div key={evalItem.id} className="p-4 rounded-xl border border-slate-100 bg-slate-50 flex flex-col gap-2 relative">
+                        <div className="flex justify-between items-center pr-20">
                             <span className="font-semibold text-sm text-slate-700">{evalItem.sender}</span>
                             <span className="text-xs text-slate-500">{evalItem.date}</span>
                         </div>
-                        <p className="text-sm text-slate-600">{evalItem.text}</p>
+                        
+                        {isEditing ? (
+                          <div className="flex flex-col gap-2 mt-1">
+                            <textarea
+                              rows="3"
+                              value={editingText}
+                              onChange={e => setEditingText(e.target.value)}
+                              className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:border-indigo-500 resize-none bg-white"
+                            />
+                            <div className="flex gap-2 justify-end">
+                              <button 
+                                onClick={handleCancelEdit} 
+                                className="px-3 py-1 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded text-xs font-semibold flex items-center gap-1"
+                              >
+                                <X size={12} /> Batal
+                              </button>
+                              <button 
+                                onClick={() => handleSaveEdit(evalItem.id)} 
+                                className="px-3 py-1 bg-[#2D2B52] hover:bg-indigo-900 text-white rounded text-xs font-semibold flex items-center gap-1"
+                              >
+                                <Check size={12} /> Simpan
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-slate-600 pr-10">{evalItem.text}</p>
+                        )}
+                        
+                        {canEditOrDelete && !isEditing && (
+                          <div className="absolute right-4 top-4 flex gap-2">
+                            <button 
+                              onClick={() => handleStartEdit(evalItem)}
+                              className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                              title="Edit Catatan"
+                            >
+                              <Edit3 size={16} />
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(evalItem.id)}
+                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                              title="Hapus Catatan"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        )}
                     </div>
-                ))
+                  );
+                })
               )}
             </div>
           )}
