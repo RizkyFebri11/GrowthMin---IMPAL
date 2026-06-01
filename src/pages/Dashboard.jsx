@@ -3,10 +3,12 @@ import { ChevronRight, MessageSquare, Printer, Calendar } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import TopStatsRow from '../components/TopStatsRow';
 import { useDashboardData } from '../hooks/useDashboardData';
+import Modal from '../components/Modal';
 
 const Dashboard = ({ currentUser }) => {
   const { chartData, leaderboard, evaluations, isLoading } = useDashboardData(currentUser);
   const [filterMonth, setFilterMonth] = useState('Semua Rentang Waktu');
+  const [modal, setModal] = useState({ isOpen: false, type: 'success', title: '', message: '' });
 
   const filteredChartData = useMemo(() => {
     if (!chartData) return [];
@@ -41,7 +43,7 @@ const Dashboard = ({ currentUser }) => {
                   <option value="Bulan Lalu (April 2026)">Bulan Lalu (April 2026)</option>
                 </select>
               </div>
-              <button onClick={() => alert('Dokumen Laporan PDF sedang diunduh...')} className="flex items-center gap-2 bg-[#5D5FEF] hover:bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">
+              <button onClick={() => setModal({ isOpen: true, type: 'success', title: 'Unduh PDF', message: 'Dokumen Laporan PDF sedang diunduh ke komputer Anda.' })} className="flex items-center gap-2 bg-[#5D5FEF] hover:bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">
                 <Printer size={16} /> Cetak PDF
               </button>
             </div>
@@ -135,6 +137,7 @@ const Dashboard = ({ currentUser }) => {
           </tbody>
         </table>
       </div>
+      <Modal {...modal} onClose={() => setModal(prev => ({ ...prev, isOpen: false }))} />
     </div>
   );
 };

@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { MoreVertical } from 'lucide-react';
 import TopStatsRow from '../components/TopStatsRow';
 import { supabase } from '../config/supabase';
+import Modal from '../components/Modal';
 
 const KelolaTarget = ({ currentUser }) => {
   const [targets, setTargets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [newStaff, setNewStaff] = useState({ name: '', role: '', targetRevenue: '', startDate: '', endDate: '' });
   const [errorMsg, setErrorMsg] = useState('');
+  const [modal, setModal] = useState({ isOpen: false, type: 'info', title: '', message: '' });
 
   const fetchTargetsData = async () => {
     setIsLoading(true);
@@ -129,7 +131,7 @@ const KelolaTarget = ({ currentUser }) => {
         throw new Error(targetError.message);
       }
 
-      alert('Berhasil menambah staff dan target ke database!');
+      setModal({ isOpen: true, type: 'success', title: 'Berhasil', message: 'Staff baru dan targetnya berhasil ditambahkan ke database!' });
       setNewStaff({ name: '', role: '', targetRevenue: '', startDate: '', endDate: '' });
       fetchTargetsData();
     } catch (e) {
@@ -231,6 +233,7 @@ const KelolaTarget = ({ currentUser }) => {
           <div className="bg-slate-100 rounded-2xl flex-1 border border-slate-200 min-h-[150px]"></div>
         </div>
       </div>
+      <Modal {...modal} onClose={() => setModal(prev => ({ ...prev, isOpen: false }))} />
     </div>
   );
 };

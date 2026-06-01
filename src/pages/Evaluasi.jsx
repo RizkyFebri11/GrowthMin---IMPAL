@@ -15,8 +15,17 @@ const Evaluasi = ({ currentUser }) => {
   
   const [editingId, setEditingId] = useState(null);
   const [editingText, setEditingText] = useState('');
+  const [modal, setModal] = useState({ isOpen: false, type: 'info', title: '', message: '', onConfirm: null });
   
   const isManager = currentUser.role === 'manajer';
+
+  const showAlert = (type, title, message) => {
+    setModal({ isOpen: true, type, title, message, onConfirm: null });
+  };
+
+  const showConfirm = (title, message, onConfirm) => {
+    setModal({ isOpen: true, type: 'confirm', title, message, onConfirm });
+  };
 
   const fetchEvaluationsData = async () => {
     setIsLoading(true);
@@ -77,7 +86,7 @@ const Evaluasi = ({ currentUser }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedUser || !catatan) {
-        alert('Harap lengkapi semua isian!');
+        showAlert('error', 'Validasi Gagal', 'Harap lengkapi semua isian!');
         return;
     }
 
@@ -136,33 +145,38 @@ const Evaluasi = ({ currentUser }) => {
         throw new Error(evalError.message);
       }
 
-      alert('Evaluasi berhasil disimpan!');
+      showAlert('success', 'Berhasil', 'Catatan evaluasi berhasil disimpan!');
       setCatatan('');
       setSelectedUser('');
       fetchEvaluationsData(); // Reload list
     } catch (err) {
       console.error(err);
-      alert(`Gagal mengirim evaluasi: ${err.message}`);
+      showAlert('error', 'Gagal', `Gagal mengirim evaluasi: ${err.message}`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDelete = async (id_evaluasi) => {
+  const handleDelete = (id_evaluasi) => {
     console.log('handleDelete called for ID:', id_evaluasi);
-    if (!window.confirm('Apakah Anda yakin ingin menghapus evaluasi ini?')) return;
-    try {
-      const { error } = await supabase
-        .from('evaluations')
-        .delete()
-        .eq('id_evaluasi', id_evaluasi);
-      if (error) throw error;
-      alert('Evaluasi berhasil dihapus!');
-      fetchEvaluationsData();
-    } catch (err) {
-      console.error(err);
-      alert(`Gagal menghapus evaluasi: ${err.message}`);
-    }
+    showConfirm(
+      'Hapus Evaluasi',
+      'Apakah Anda yakin ingin menghapus catatan evaluasi ini secara permanen?',
+      async () => {
+        try {
+          const { error } = await supabase
+            .from('evaluations')
+            .delete()
+            .eq('id_evaluasi', id_evaluasi);
+          if (error) throw error;
+          showAlert('success', 'Berhasil', 'Evaluasi berhasil dihapus dari database!');
+          fetchEvaluationsData();
+        } catch (err) {
+          console.error(err);
+          showAlert('error', 'Gagal', `Gagal menghapus evaluasi: ${err.message}`);
+        }
+      }
+    );
   };
 
   const handleStartEdit = (evalItem) => {
@@ -177,7 +191,7 @@ const Evaluasi = ({ currentUser }) => {
 
   const handleSaveEdit = async (id_evaluasi) => {
     if (!editingText.trim()) {
-      alert('Catatan evaluasi tidak boleh kosong!');
+      showAlert('error', 'Validasi Gagal', 'Catatan evaluasi tidak boleh kosong!');
       return;
     }
     try {
@@ -186,13 +200,13 @@ const Evaluasi = ({ currentUser }) => {
         .update({ catatan_evaluasi: editingText })
         .eq('id_evaluasi', id_evaluasi);
       if (error) throw error;
-      alert('Evaluasi berhasil diperbarui!');
+      showAlert('success', 'Berhasil', 'Evaluasi berhasil diperbarui!');
       setEditingId(null);
       setEditingText('');
       fetchEvaluationsData();
     } catch (err) {
       console.error(err);
-      alert(`Gagal memperbarui evaluasi: ${err.message}`);
+      showAlert('error', 'Gagal', `Gagal diperbarui: ${err.message}`);
     }
   };
 
@@ -297,6 +311,7 @@ const Evaluasi = ({ currentUser }) => {
           )}
         </div>
       </div>
+      <Modal {...modal} onClose={() => setModal(prev => ({ ...prev, isOpen: false }))} />
     </div>
   );
 };

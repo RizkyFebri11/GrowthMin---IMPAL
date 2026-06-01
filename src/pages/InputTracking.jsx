@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '../config/supabase';
+import Modal from '../components/Modal';
 
 const InputTracking = ({ currentUser }) => {
+  const [modal, setModal] = useState({ isOpen: false, type: 'info', title: '', message: '' });
   const [formData, setFormData] = useState({
     tanggal: '',
     leads: 0,
@@ -10,6 +12,10 @@ const InputTracking = ({ currentUser }) => {
     spend: 0,
     revenue: 0
   });
+
+  const showModal = (type, title, message) => {
+    setModal({ isOpen: true, type, title, message });
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,21 +37,21 @@ const InputTracking = ({ currentUser }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!currentUser) return alert('Silakan login terlebih dahulu!');
+    if (!currentUser) return showModal('error', 'Akses Ditolak', 'Silakan login terlebih dahulu!');
 
     // Validasi Error IMK Task
     if (!formData.tanggal) {
-      alert('Field required: Tanggal Tracking wajib diisi!');
+      showModal('error', 'Validasi Gagal', 'Field required: Tanggal Tracking wajib diisi!');
       return;
     }
 
     if (Number(formData.leads) < 0 || Number(formData.closing) < 0 || Number(formData.spend) < 0 || Number(formData.revenue) < 0) {
-      alert('Error: Nominal tidak boleh bernilai kurang dari 0!');
+      showModal('error', 'Validasi Gagal', 'Error: Nominal tidak boleh bernilai kurang dari 0!');
       return;
     }
 
     if (isNaN(Number(formData.leads)) || isNaN(Number(formData.closing)) || isNaN(Number(formData.spend)) || isNaN(Number(formData.revenue))) {
-      alert('Error: Input harus berupa nominal angka valid!');
+      showModal('error', 'Validasi Gagal', 'Error: Input harus berupa nominal angka valid!');
       return;
     }
     
@@ -64,11 +70,11 @@ const InputTracking = ({ currentUser }) => {
 
     if (error) {
       console.error(error);
-      alert('Gagal mengirim data. Coba lagi!');
+      showModal('error', 'Gagal', 'Gagal mengirim data. Coba lagi!');
       return;
     }
 
-    alert('Data berhasil dikirim ke database!');
+    showModal('success', 'Berhasil', 'Data harian berhasil dikirim ke database!');
     setFormData({
       tanggal: '',
       leads: 0,
@@ -77,6 +83,7 @@ const InputTracking = ({ currentUser }) => {
       revenue: 0
     });
   };
+
 
   return (
     <div className="animate-in fade-in duration-300 h-full flex flex-col">
@@ -228,6 +235,7 @@ const InputTracking = ({ currentUser }) => {
 
         </form>
       </div>
+      <Modal {...modal} onClose={() => setModal(prev => ({ ...prev, isOpen: false }))} />
     </div>
   );
 };
