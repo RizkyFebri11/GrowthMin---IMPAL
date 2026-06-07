@@ -205,9 +205,12 @@ const KelolaTarget = ({ currentUser }) => {
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">Role</label>
-                <select value={newStaff.role} onChange={e => setNewStaff({...newStaff, role: e.target.value})} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:border-indigo-500 bg-white">
-                  <option value="Staff">Staff</option>
-                </select>
+                <input 
+                  type="text" 
+                  value="Staff" 
+                  disabled 
+                  className="w-full p-2 border border-slate-200 bg-slate-50 text-slate-500 rounded-lg text-sm outline-none cursor-not-allowed" 
+                />
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">Target Revenue (Rp)</label>
