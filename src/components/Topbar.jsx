@@ -1,8 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Filter } from 'lucide-react';
 
 const Topbar = ({ activeTab, currentUser }) => {
   const firstName = currentUser.nama.split(' ')[0];
+  const [formattedDate, setFormattedDate] = useState('');
+
+  useEffect(() => {
+    const updateDate = () => {
+      const now = new Date();
+      const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+      setFormattedDate(now.toLocaleDateString('id-ID', options));
+    };
+
+    updateDate();
+    // Update every minute to keep it accurate
+    const interval = setInterval(updateDate, 60000);
+    return () => clearInterval(interval);
+  }, []);
   
   return (
     <header className="flex justify-between items-start mb-8">
@@ -11,9 +25,12 @@ const Topbar = ({ activeTab, currentUser }) => {
           {activeTab === 'dashboard' ? `Halo, ${firstName}!` : 
            activeTab === 'targets' ? 'Manajemen Target' : 
            activeTab === 'tracking' ? 'Input Tracking' :
+           activeTab === 'evaluasi' ? 'Evaluasi Mingguan' :
            'Leaderboard'}
         </h1>
-        <p className="text-xs text-slate-500 mt-1">Selasa, 7 April 2026</p>
+        <p className="text-xs text-slate-500 mt-1">
+          {formattedDate || 'Memuat tanggal...'}
+        </p>
       </div>
       <div className="flex items-center gap-4">
         <button className="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 relative hover:text-slate-600 shadow-sm">
@@ -33,3 +50,4 @@ const Topbar = ({ activeTab, currentUser }) => {
 };
 
 export default Topbar;
+
