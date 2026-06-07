@@ -18,9 +18,19 @@ const KelolaTarget = ({ currentUser }) => {
   const [agreementChecked, setAgreementChecked] = useState(false);
   const [dismissalError, setDismissalError] = useState('');
 
+  // Target editing states
+  const [targetModalOpen, setTargetModalOpen] = useState(false);
+  const [targetStaff, setTargetStaff] = useState(null);
+  const [targetForm, setTargetForm] = useState({ revenue: '', leads: '100', closing: '10', roas: '4.0' });
+  const [targetError, setTargetError] = useState('');
+
   const fetchTargetsData = async () => {
     setIsLoading(true);
     try {
+      const now = new Date();
+      const curMonth = now.getMonth() + 1;
+      const curYear = now.getFullYear();
+
       // Fetch users
       const { data: usersData } = await supabase.from('users').select('*');
       const usersMap = {};
@@ -30,45 +40,64 @@ const KelolaTarget = ({ currentUser }) => {
         });
       }
 
-      // Fetch daily logs to compute actual revenue for progress
-      const { data: logsData } = await supabase.from('daily_logs').select('id_user, nominal_revenue');
-      const userActualRev = {};
-      if (logsData) {
-        logsData.forEach(log => {
-          userActualRev[log.id_user] = (userActualRev[log.id_user] || 0) + (Number(log.nominal_revenue) || 0);
+      // Fetch targets for current month and year
+      const { data: targetsData } = await supabase
+        .from('targets')
+        .select('*')
+        .eq('bulan', curMonth)
+        .eq('tahun', curYear);
+      
+      const targetsMap = {};
+      if (targetsData) {
+        targetsData.forEach(t => {
+          targetsMap[t.id_user] = t;
         });
       }
 
-      // Fetch targets
-      const { data: targetsData } = await supabase.from('targets').select('*');
-      
-      if (targetsData) {
-        const formatted = targetsData
-          .filter(t => {
-            const user = usersMap[t.id_user];
-            if (!user) return false;
+      // Fetch daily logs to compute actual revenue for progress (this month only)
+      const { data: logsData } = await supabase.from('daily_logs').select('id_user, nominal_revenue, tanggal');
+      const userActualRev = {};
+      if (logsData) {
+        logsData.forEach(log => {
+          const logDate = new Date(log.tanggal);
+          if (logDate.getMonth() + 1 === curMonth && logDate.getFullYear() === curYear) {
+            userActualRev[log.id_user] = (userActualRev[log.id_user] || 0) + (Number(log.nominal_revenue) || 0);
+          }
+        });
+      }
+
+      if (usersData) {
+        const formatted = usersData
+          .filter(user => {
+            if (user.role !== 'staff') return false;
             // Only show staff from the same team if the current user is a manager
             if (currentUser?.role === 'manajer') {
-              return user.tim === currentUser.tim && user.role === 'staff';
+              return user.tim === currentUser.tim;
             }
             return true;
           })
-          .map(t => {
-            const user = usersMap[t.id_user] || { nama: 'Unknown', role: 'staff' };
-            const actualRev = userActualRev[t.id_user] || 0;
-            const targetRevVal = Number(t.target_revenue) || 1;
-            const progressPercent = Math.min(100, Math.round((actualRev / targetRevVal) * 100));
+          .map(user => {
+            const target = targetsMap[user.id_user];
+            const actualRev = userActualRev[user.id_user] || 0;
+            const targetRevVal = target ? (Number(target.target_revenue) || 0) : 0;
+            const progressPercent = targetRevVal > 0 ? Math.min(100, Math.round((actualRev / targetRevVal) * 100)) : 0;
 
             return {
-              id: t.id_target,
-              id_user: t.id_user,
+              id_user: user.id_user,
               name: user.nama,
-              role: user.role === 'manajer' ? 'Manager' : 'Staff',
-              leads: t.target_leads || 0,
-              closing: t.target_closing || 0,
-              revenue: t.target_revenue >= 1000000000 ? `Rp ${(t.target_revenue/1000000000).toFixed(1)}M` : t.target_revenue >= 1000000 ? `Rp ${(t.target_revenue/1000000).toFixed(1)}Jt` : `Rp ${Number(t.target_revenue).toLocaleString('id-ID')}`,
-              roas: `${t.target_roas || 0}x`,
-              progress: progressPercent
+              role: 'Staff',
+              leads: target ? (target.target_leads || 0) : 0,
+              closing: target ? (target.target_closing || 0) : 0,
+              revenue: target 
+                ? (target.target_revenue >= 1000000000 
+                  ? `Rp ${(target.target_revenue/1000000000).toFixed(1)}M` 
+                  : target.target_revenue >= 1000000 
+                    ? `Rp ${(target.target_revenue/1000000).toFixed(1)}Jt` 
+                    : `Rp ${Number(target.target_revenue).toLocaleString('id-ID')}`)
+                : 'Belum Diatur',
+              roas: target ? `${target.target_roas || 0}x` : '0x',
+              progress: progressPercent,
+              rawTarget: target
             };
           });
         setTargets(formatted);
@@ -193,6 +222,99 @@ const KelolaTarget = ({ currentUser }) => {
     }
   };
 
+  const handleOpenTargetModal = (staff) => {
+    setTargetStaff(staff);
+    if (staff.rawTarget) {
+      setTargetForm({
+        revenue: staff.rawTarget.target_revenue ? String(staff.rawTarget.target_revenue) : '',
+        leads: staff.rawTarget.target_leads ? String(staff.rawTarget.target_leads) : '100',
+        closing: staff.rawTarget.target_closing ? String(staff.rawTarget.target_closing) : '10',
+        roas: staff.rawTarget.target_roas ? String(staff.rawTarget.target_roas) : '4.0'
+      });
+    } else {
+      setTargetForm({ revenue: '', leads: '100', closing: '10', roas: '4.0' });
+    }
+    setTargetError('');
+    setTargetModalOpen(true);
+  };
+
+  const handleCloseTargetModal = () => {
+    setTargetModalOpen(false);
+    setTargetStaff(null);
+    setTargetForm({ revenue: '', leads: '100', closing: '10', roas: '4.0' });
+    setTargetError('');
+  };
+
+  const handleSaveTarget = async () => {
+    setTargetError('');
+    if (!targetForm.revenue || /[^0-9]/.test(targetForm.revenue)) {
+      setTargetError('Target Revenue wajib diisi dengan nominal angka saja (jangan gunakan titik/simbol spesial)!');
+      return;
+    }
+    if (!targetForm.leads || /[^0-9]/.test(targetForm.leads)) {
+      setTargetError('Target Leads wajib diisi dengan angka!');
+      return;
+    }
+    if (!targetForm.closing || /[^0-9]/.test(targetForm.closing)) {
+      setTargetError('Target Closing wajib diisi dengan angka!');
+      return;
+    }
+    if (!targetForm.roas || isNaN(Number(targetForm.roas))) {
+      setTargetError('Target ROAS harus berupa angka desimal!');
+      return;
+    }
+
+    try {
+      const now = new Date();
+      const curMonth = now.getMonth() + 1;
+      const curYear = now.getFullYear();
+
+      if (targetStaff.rawTarget) {
+        // Target exists -> update it
+        const { error } = await supabase
+          .from('targets')
+          .update({
+            target_revenue: Number(targetForm.revenue),
+            target_leads: Number(targetForm.leads),
+            target_closing: Number(targetForm.closing),
+            target_roas: Number(targetForm.roas)
+          })
+          .eq('id_target', targetStaff.rawTarget.id_target);
+
+        if (error) throw error;
+      } else {
+        // Target doesn't exist for current month -> insert it
+        const { error } = await supabase
+          .from('targets')
+          .insert([
+            {
+              id_user: targetStaff.id_user,
+              bulan: curMonth,
+              tahun: curYear,
+              target_leads: Number(targetForm.leads),
+              target_closing: Number(targetForm.closing),
+              target_revenue: Number(targetForm.revenue),
+              target_roas: Number(targetForm.roas)
+            }
+          ]);
+
+        if (error) throw error;
+      }
+
+      setModal({
+        isOpen: true,
+        type: 'success',
+        title: 'Berhasil',
+        message: `Target bulanan staf ${targetStaff.name} berhasil diperbarui!`
+      });
+      handleCloseTargetModal();
+      fetchTargetsData();
+    } catch (err) {
+      console.error(err);
+      setTargetError(`Gagal menyimpan target: ${err.message}`);
+    }
+  };
+
   const handleAddStaff = async () => {
     setErrorMsg('');
     
@@ -310,12 +432,20 @@ const KelolaTarget = ({ currentUser }) => {
                       </td>
                       <td className="px-4 py-4 text-center">
                         {currentUser?.role === 'manajer' ? (
-                          <button
-                            onClick={() => handleOpenDismissalModal(t)}
-                            className="text-red-500 hover:text-red-700 font-semibold text-xs bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded transition-colors"
-                          >
-                            Pecat
-                          </button>
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              onClick={() => handleOpenTargetModal(t)}
+                              className="text-indigo-600 hover:text-indigo-800 font-semibold text-xs bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1.5 rounded transition-colors"
+                            >
+                              Atur Target
+                            </button>
+                            <button
+                              onClick={() => handleOpenDismissalModal(t)}
+                              className="text-red-500 hover:text-red-700 font-semibold text-xs bg-red-50 hover:bg-red-100 px-2.5 py-1.5 rounded transition-colors"
+                            >
+                              Pecat
+                            </button>
+                          </div>
                         ) : (
                           <button className="text-slate-300 cursor-not-allowed" disabled>
                             <MoreVertical size={16} className="mx-auto" />
@@ -482,6 +612,98 @@ const KelolaTarget = ({ currentUser }) => {
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition-all shadow-md"
               >
                 Konfirmasi Pemberhentian
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* Target Management Modal */}
+      {targetModalOpen && targetStaff && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl border-t-4 border-t-indigo-500 w-full max-w-md overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-200">
+            
+            {/* Modal Header */}
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">Atur Target Bulanan</h3>
+                <p className="text-xs text-slate-500 mt-0.5">Staf: {targetStaff.name}</p>
+              </div>
+              <button onClick={handleCloseTargetModal} className="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4">
+              <p className="text-xs text-slate-600 font-medium">
+                Mengatur target untuk bulan <strong>{new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</strong>.
+              </p>
+
+              {targetError && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg">
+                  {targetError}
+                </div>
+              )}
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Target Revenue (Rp)</label>
+                  <input
+                    type="text"
+                    value={targetForm.revenue}
+                    onChange={(e) => setTargetForm({ ...targetForm, revenue: e.target.value })}
+                    placeholder="Contoh: 15000000"
+                    className="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Target Leads</label>
+                    <input
+                      type="text"
+                      value={targetForm.leads}
+                      onChange={(e) => setTargetForm({ ...targetForm, leads: e.target.value })}
+                      className="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Target Closing</label>
+                    <input
+                      type="text"
+                      value={targetForm.closing}
+                      onChange={(e) => setTargetForm({ ...targetForm, closing: e.target.value })}
+                      className="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Target ROAS</label>
+                    <input
+                      type="text"
+                      value={targetForm.roas}
+                      onChange={(e) => setTargetForm({ ...targetForm, roas: e.target.value })}
+                      className="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+              <button
+                onClick={handleCloseTargetModal}
+                type="button"
+                className="px-4 py-2 border border-slate-200 hover:bg-slate-100 text-slate-600 rounded-lg text-sm font-semibold transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleSaveTarget}
+                type="button"
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition-all shadow-md"
+              >
+                Simpan Target
               </button>
             </div>
 
