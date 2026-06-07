@@ -6,7 +6,7 @@ import { useDashboardData } from '../hooks/useDashboardData';
 import Modal from '../components/Modal';
 
 const Dashboard = ({ currentUser }) => {
-  const { chartData, leaderboard, evaluations, isLoading } = useDashboardData(currentUser);
+  const { chartData, leaderboard, evaluations, targetProgress, isLoading } = useDashboardData(currentUser);
   const [modal, setModal] = useState({ isOpen: false, type: 'success', title: '', message: '' });
 
   if (isLoading) return <div className="p-10 flex justify-center"><div className="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full"></div></div>;
@@ -80,13 +80,15 @@ const Dashboard = ({ currentUser }) => {
             </div>
             <h4 className="text-sm font-medium mb-1 relative z-10">Target Bulan Ini</h4>
             <div className="flex items-baseline gap-2 mb-4 relative z-10">
-              <span className="text-4xl font-bold">82%</span>
+              <span className="text-4xl font-bold">{targetProgress?.percentage || 0}%</span>
               <span className="text-xs text-indigo-200">Tercapai</span>
             </div>
             <div className="w-full bg-indigo-900/50 h-2 rounded-full mb-3 relative z-10">
-              <div className="bg-white h-2 rounded-full" style={{width: '82%'}}></div>
+              <div className="bg-white h-2 rounded-full transition-all duration-500" style={{width: `${targetProgress?.percentage || 0}%`}}></div>
             </div>
-            <p className="text-[10px] text-indigo-200 relative z-10">Kekurangan: Rp 12,400,000</p>
+            <p className="text-[10px] text-indigo-200 relative z-10">
+              Kekurangan: {targetProgress?.shortfall > 0 ? `Rp ${targetProgress.shortfall.toLocaleString('id-ID')}` : 'Terpenuhi'}
+            </p>
           </div>
         </div>
       </div>

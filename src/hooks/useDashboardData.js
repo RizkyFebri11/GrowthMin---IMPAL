@@ -5,18 +5,21 @@ export const useDashboardData = (currentUser) => {
   const [chartData, setChartData] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
   const [evaluations, setEvaluations] = useState([]);
+  const [targetProgress, setTargetProgress] = useState({ targetRevenue: 0, actualRevenue: 0, percentage: 0, shortfall: 0 });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async (silent = false) => {
       if (!silent) setIsLoading(true);
       
-      const { data: usersData } = await supabase.from('users').select('id_user, nama');
+      const { data: usersData } = await supabase.from('users').select('id_user, nama, role, tim');
       const usersMap = {};
       if (usersData) {
         usersData.forEach(u => {
           usersMap[u.id_user] = {
             nama: u.nama,
+            role: u.role,
+            tim: u.tim,
             avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(u.nama)}&background=random`
           };
         });
@@ -24,6 +27,80 @@ export const useDashboardData = (currentUser) => {
 
       const { data: logsData } = await supabase.from('daily_logs').select('*');
       
+      const now = new Date();
+      const curMonth = now.getMonth() + 1;
+      const curYear = now.getFullYear();
+
+      // Fetch targets for the current month and year
+      const { data: targetsData } = await supabase
+        .from('targets')
+        .select('*')
+        .eq('bulan', curMonth)
+        .eq('tahun', curYear);
+
+      // Calculate dynamic Target Progress
+      let targetVal = 0;
+      let actualVal = 0;
+
+      if (currentUser) {
+        if (currentUser.role === 'staff') {
+          // Staff: Personal monthly targets
+          if (targetsData) {
+            const personalTarget = targetsData.find(t => t.id_user === currentUser.id_user);
+            targetVal = personalTarget ? (Number(personalTarget.target_revenue) || 0) : 0;
+          }
+          if (logsData) {
+            logsData.forEach(log => {
+              if (log.id_user === currentUser.id_user) {
+                const logDate = new Date(log.tanggal);
+                if (logDate.getMonth() + 1 === curMonth && logDate.getFullYear() === curYear) {
+                  actualVal += Number(log.nominal_revenue) || 0;
+                }
+              }
+            });
+          }
+        } else {
+          // Manager: Cumulative team targets
+          const teamUserIds = [];
+          if (usersData) {
+            usersData.forEach(u => {
+              if (u.tim === currentUser.tim && u.role === 'staff') {
+                teamUserIds.push(u.id_user);
+              }
+            });
+          }
+
+          if (targetsData && teamUserIds.length > 0) {
+            targetsData.forEach(t => {
+              if (teamUserIds.includes(t.id_user)) {
+                targetVal += Number(t.target_revenue) || 0;
+              }
+            });
+          }
+
+          if (logsData && teamUserIds.length > 0) {
+            logsData.forEach(log => {
+              if (teamUserIds.includes(log.id_user)) {
+                const logDate = new Date(log.tanggal);
+                if (logDate.getMonth() + 1 === curMonth && logDate.getFullYear() === curYear) {
+                  actualVal += Number(log.nominal_revenue) || 0;
+                }
+              }
+            });
+          }
+        }
+      }
+
+      const percentage = targetVal > 0 ? Math.min(100, Math.round((actualVal / targetVal) * 100)) : 0;
+      const shortfall = targetVal > actualVal ? targetVal - actualVal : 0;
+
+      setTargetProgress({
+        targetRevenue: targetVal,
+        actualRevenue: actualVal,
+        percentage,
+        shortfall
+      });
+
       if (logsData) {
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const monthlyStats = {};
@@ -79,7 +156,6 @@ export const useDashboardData = (currentUser) => {
 
       const formattedEvaluations = [];
       if (evData) {
-        // Sort by tanggal_input desc
         const sortedEv = [...evData].sort((a, b) => new Date(b.tanggal_input) - new Date(a.tanggal_input));
         
         sortedEv.forEach(ev => {
@@ -150,6 +226,5 @@ export const useDashboardData = (currentUser) => {
     }
   }, [currentUser]);
 
-  return { chartData, leaderboard, evaluations, isLoading };
+  return { chartData, leaderboard, evaluations, targetProgress, isLoading };
 };
-
