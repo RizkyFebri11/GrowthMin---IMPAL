@@ -7,7 +7,7 @@ import Modal from '../components/Modal';
 const KelolaTarget = ({ currentUser }) => {
   const [targets, setTargets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [newStaff, setNewStaff] = useState({ name: '', role: '', targetRevenue: '', startDate: '', endDate: '' });
+  const [newStaff, setNewStaff] = useState({ name: '', role: 'Staff', targetRevenue: '', startDate: '', endDate: '' });
   const [errorMsg, setErrorMsg] = useState('');
   const [modal, setModal] = useState({ isOpen: false, type: 'info', title: '', message: '' });
 
@@ -132,7 +132,7 @@ const KelolaTarget = ({ currentUser }) => {
       }
 
       setModal({ isOpen: true, type: 'success', title: 'Berhasil', message: 'Staff baru dan targetnya berhasil ditambahkan ke database!' });
-      setNewStaff({ name: '', role: '', targetRevenue: '', startDate: '', endDate: '' });
+      setNewStaff({ name: '', role: 'Staff', targetRevenue: '', startDate: '', endDate: '' });
       fetchTargetsData();
     } catch (e) {
       console.error(e);
@@ -206,9 +206,7 @@ const KelolaTarget = ({ currentUser }) => {
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">Role</label>
                 <select value={newStaff.role} onChange={e => setNewStaff({...newStaff, role: e.target.value})} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:border-indigo-500 bg-white">
-                  <option value="">Role</option>
-                  <option value="Hacker">Hacker</option>
-                  <option value="Hustler">Hustler</option>
+                  <option value="Staff">Staff</option>
                 </select>
               </div>
               <div>
