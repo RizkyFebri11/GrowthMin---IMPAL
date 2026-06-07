@@ -8,6 +8,42 @@ const Topbar = ({ activeTab, currentUser }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(currentUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.nama)}&background=4F46E5&color=fff&bold=true`);
+
+  useEffect(() => {
+    const updateAvatar = () => {
+      const savedUrl = localStorage.getItem(`profile_avatar_url_${currentUser?.id_user}`);
+      if (savedUrl) {
+        setAvatarUrl(savedUrl);
+      } else {
+        const savedConfig = localStorage.getItem(`profile_avatar_config_${currentUser?.id_user}`);
+        if (savedConfig) {
+          try {
+            const parsed = JSON.parse(savedConfig);
+            if (parsed.type === 'initials') {
+              setAvatarUrl(`https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.nama || 'U')}&background=${parsed.value}&color=fff&bold=true`);
+            } else {
+              setAvatarUrl(parsed.value);
+            }
+          } catch (e) {
+            console.error(e);
+          }
+        } else {
+          setAvatarUrl(currentUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.nama)}&background=4F46E5&color=fff&bold=true`);
+        }
+      }
+    };
+
+    updateAvatar();
+    
+    window.addEventListener('storage', updateAvatar);
+    window.addEventListener('profile_updated', updateAvatar);
+    
+    return () => {
+      window.removeEventListener('storage', updateAvatar);
+      window.removeEventListener('profile_updated', updateAvatar);
+    };
+  }, [currentUser]);
 
   // Format real-time Date
   useEffect(() => {
@@ -173,6 +209,7 @@ const Topbar = ({ activeTab, currentUser }) => {
            activeTab === 'targets' ? 'Manajemen Target' : 
            activeTab === 'tracking' ? 'Input Tracking' :
            activeTab === 'evaluasi' ? 'Evaluasi Mingguan' :
+           activeTab === 'profile' ? 'Pengaturan Profil' :
            'Leaderboard'}
         </h1>
         <p className="text-xs text-slate-500 mt-1">
@@ -227,7 +264,7 @@ const Topbar = ({ activeTab, currentUser }) => {
         </div>
 
         <div className="bg-white border border-slate-200 rounded-xl p-1.5 pr-4 flex items-center gap-3 shadow-sm">
-          <img src={currentUser.avatar} alt="Profile" className="w-8 h-8 rounded-lg" />
+          <img src={avatarUrl} alt="Profile" className="w-8 h-8 rounded-lg object-cover" />
           <div>
             <p className="text-sm font-bold text-slate-800 leading-none">{currentUser.nama.length > 20 ? currentUser.nama.substring(0, 17) + '...' : currentUser.nama}</p>
             <p className="text-[10px] text-slate-400 uppercase font-semibold mt-0.5">{currentUser.tim} Team</p>

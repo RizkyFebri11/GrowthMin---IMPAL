@@ -1,8 +1,44 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { LayoutDashboard, Target, Trophy, LogOut, FileText, MessageSquare } from 'lucide-react';
 
 const Sidebar = ({ activeTab, setActiveTab, onLogout, currentUser }) => {
-  const isManager = currentUser.role === 'manajer';
+  const isManager = currentUser?.role === 'manajer';
+  const [avatarUrl, setAvatarUrl] = useState(`https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.nama || 'U')}&background=4F46E5&color=fff&bold=true`);
+
+  useEffect(() => {
+    const updateAvatar = () => {
+      const savedUrl = localStorage.getItem(`profile_avatar_url_${currentUser?.id_user}`);
+      if (savedUrl) {
+        setAvatarUrl(savedUrl);
+      } else {
+        const savedConfig = localStorage.getItem(`profile_avatar_config_${currentUser?.id_user}`);
+        if (savedConfig) {
+          try {
+            const parsed = JSON.parse(savedConfig);
+            if (parsed.type === 'initials') {
+              setAvatarUrl(`https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.nama || 'U')}&background=${parsed.value}&color=fff&bold=true`);
+            } else {
+              setAvatarUrl(parsed.value);
+            }
+          } catch (e) {
+            console.error(e);
+          }
+        } else {
+          setAvatarUrl(`https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.nama || 'U')}&background=4F46E5&color=fff&bold=true`);
+        }
+      }
+    };
+
+    updateAvatar();
+    
+    window.addEventListener('storage', updateAvatar);
+    window.addEventListener('profile_updated', updateAvatar);
+    
+    return () => {
+      window.removeEventListener('storage', updateAvatar);
+      window.removeEventListener('profile_updated', updateAvatar);
+    };
+  }, [currentUser]);
 
   return (
     <aside className="w-64 bg-white border-r border-slate-100 fixed h-full flex flex-col z-20">
@@ -51,11 +87,28 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, currentUser }) => {
       </div>
 
       <div className="mt-auto p-6">
-        <div className="bg-slate-50 p-4 rounded-xl mb-4 border border-slate-100">
-          <p className="text-[10px] text-slate-400 uppercase font-semibold mb-1">Signed in as</p>
-          <p className="text-sm font-bold text-slate-800 leading-tight">{currentUser.nama}</p>
-          <p className="text-[10px] font-bold text-[#5D5FEF] uppercase mt-0.5">{currentUser.role} - {currentUser.tim}</p>
-        </div>
+        <button
+          onClick={() => setActiveTab('profile')}
+          className={`w-full text-left bg-slate-50 p-4 rounded-xl mb-4 border flex items-center gap-3 transition-all ${
+            activeTab === 'profile' ? 'border-[#5D5FEF] bg-indigo-50/20 shadow-sm' : 'border-slate-100 hover:bg-slate-100 hover:border-slate-200'
+          }`}
+        >
+          <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 flex-shrink-0 bg-slate-100">
+            <img 
+              src={avatarUrl} 
+              alt="Avatar" 
+              className="w-full h-full object-cover" 
+            />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[9px] text-slate-400 uppercase font-semibold leading-none mb-1">Signed in as</p>
+            <p className="text-sm font-bold text-slate-800 leading-tight truncate">{currentUser.nama}</p>
+            <p className="text-[10px] font-bold text-[#5D5FEF] uppercase mt-0.5 truncate leading-none">
+              {currentUser.role === 'manajer' ? 'Manager' : 'Staff'} - {currentUser.tim}
+            </p>
+          </div>
+        </button>
+        
         <button onClick={onLogout} className="flex items-center gap-2 text-rose-500 font-medium text-sm hover:text-rose-600 transition-colors w-full justify-center lg:justify-start">
           <LogOut size={16} /> Keluar
         </button>

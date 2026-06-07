@@ -9,6 +9,7 @@ import Leaderboard from '../pages/Leaderboard';
 import InputTracking from '../pages/InputTracking';
 import Evaluasi from '../pages/Evaluasi';
 import Login from '../pages/Login';
+import Profile from '../pages/Profile';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -35,6 +36,7 @@ const App = () => {
         {activeTab === 'tracking' && <InputTracking currentUser={currentUser} />}
         {activeTab === 'leaderboard' && <Leaderboard currentUser={currentUser} />}
         {activeTab === 'evaluasi' && <Evaluasi currentUser={currentUser} />}
+        {activeTab === 'profile' && <Profile currentUser={currentUser} onUpdateUser={setCurrentUser} />}
       </main>
     </div>
   );
