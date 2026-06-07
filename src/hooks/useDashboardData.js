@@ -8,8 +8,8 @@ export const useDashboardData = (currentUser) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
+    const fetchData = async (silent = false) => {
+      if (!silent) setIsLoading(true);
       
       const { data: usersData } = await supabase.from('users').select('id_user, nama');
       const usersMap = {};
@@ -106,10 +106,48 @@ export const useDashboardData = (currentUser) => {
       }
       setEvaluations(formattedEvaluations);
 
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     };
 
-    if (currentUser) fetchData();
+    if (currentUser) {
+      fetchData();
+
+      // Subscribe to real-time changes on daily_logs and evaluations tables
+      const dailyLogsChannel = supabase
+        .channel('dashboard-daily-logs-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'daily_logs'
+          },
+          () => {
+            fetchData(true); // silent update
+          }
+        )
+        .subscribe();
+
+      const evaluationsChannel = supabase
+        .channel('dashboard-evaluations-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'evaluations'
+          },
+          () => {
+            fetchData(true); // silent update
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(dailyLogsChannel);
+        supabase.removeChannel(evaluationsChannel);
+      };
+    }
   }, [currentUser]);
 
   return { chartData, leaderboard, evaluations, isLoading };

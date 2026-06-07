@@ -23,7 +23,30 @@ const TopStatsRow = ({ currentUser }) => {
       
       setStats(aggregated);
     };
-    if (currentUser) fetchStats();
+
+    if (currentUser) {
+      fetchStats();
+
+      // Set up real-time subscription for live updates
+      const channel = supabase
+        .channel('daily-logs-stats-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'daily_logs'
+          },
+          () => {
+            fetchStats();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
   }, [currentUser]);
 
   const formatRp = (val) => {
