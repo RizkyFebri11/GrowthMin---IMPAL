@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { ChevronRight, MessageSquare, Printer, Calendar } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronRight, MessageSquare, Printer } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import TopStatsRow from '../components/TopStatsRow';
 import { useDashboardData } from '../hooks/useDashboardData';
@@ -7,37 +7,7 @@ import Modal from '../components/Modal';
 
 const Dashboard = ({ currentUser }) => {
   const { chartData, leaderboard, evaluations, isLoading } = useDashboardData(currentUser);
-  const [filterMonth, setFilterMonth] = useState('Semua Rentang Waktu');
   const [modal, setModal] = useState({ isOpen: false, type: 'success', title: '', message: '' });
-
-  const { currentMonthName, currentMonthKey, lastMonthName, lastMonthKey } = useMemo(() => {
-    const monthsId = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-    const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
-    const now = new Date();
-    const curYear = now.getFullYear();
-    const curMonthIdx = now.getMonth();
-    
-    const prevMonthIdx = curMonthIdx === 0 ? 11 : curMonthIdx - 1;
-    const prevYear = curMonthIdx === 0 ? curYear - 1 : curYear;
-    
-    return {
-      currentMonthName: `${monthsId[curMonthIdx]} ${curYear}`,
-      currentMonthKey: monthsEn[curMonthIdx],
-      lastMonthName: `${monthsId[prevMonthIdx]} ${prevYear}`,
-      lastMonthKey: monthsEn[prevMonthIdx],
-    };
-  }, []);
-
-  const filteredChartData = useMemo(() => {
-    if (!chartData) return [];
-    if (filterMonth === 'Bulan Ini') {
-      return chartData.filter(d => d.name === currentMonthKey);
-    } else if (filterMonth === 'Bulan Lalu') {
-      return chartData.filter(d => d.name === lastMonthKey);
-    }
-    return chartData;
-  }, [chartData, filterMonth, currentMonthKey, lastMonthKey]);
 
   if (isLoading) return <div className="p-10 flex justify-center"><div className="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full"></div></div>;
 
@@ -49,27 +19,13 @@ const Dashboard = ({ currentUser }) => {
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-bold text-lg text-slate-800">Laporan Performa (Tren Bulanan)</h3>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg">
-                <Calendar size={16} className="text-slate-500" />
-                <select 
-                  value={filterMonth}
-                  onChange={(e) => setFilterMonth(e.target.value)}
-                  className="bg-transparent text-sm font-medium text-slate-700 outline-none cursor-pointer"
-                >
-                  <option value="Semua Rentang Waktu">Semua Rentang Waktu</option>
-                  <option value="Bulan Ini">Bulan Ini ({currentMonthName})</option>
-                  <option value="Bulan Lalu">Bulan Lalu ({lastMonthName})</option>
-                </select>
-              </div>
-              <button onClick={() => setModal({ isOpen: true, type: 'success', title: 'Unduh PDF', message: 'Dokumen Laporan PDF sedang diunduh ke komputer Anda.' })} className="flex items-center gap-2 bg-[#5D5FEF] hover:bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">
-                <Printer size={16} /> Cetak PDF
-              </button>
-            </div>
+            <button onClick={() => setModal({ isOpen: true, type: 'success', title: 'Unduh PDF', message: 'Dokumen Laporan PDF sedang diunduh ke komputer Anda.' })} className="flex items-center gap-2 bg-[#5D5FEF] hover:bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">
+              <Printer size={16} /> Cetak PDF
+            </button>
           </div>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={filteredChartData} margin={{ top: 25, right: 30, left: -20, bottom: 5 }}>
+              <BarChart data={chartData} margin={{ top: 25, right: 30, left: -20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
                 <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
