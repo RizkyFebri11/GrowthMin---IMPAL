@@ -211,13 +211,6 @@ const Profile = ({ currentUser, onUpdateUser }) => {
 
   return (
     <div className="animate-in fade-in duration-300 max-w-5xl mx-auto pb-10">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="bg-indigo-50 p-2 rounded-xl text-indigo-600 border border-indigo-100 flex items-center justify-center">
-          <User size={20} className="stroke-[2.5]" />
-        </div>
-        <h2 className="text-2xl font-black text-slate-800">Pengaturan Profil</h2>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         
         {/* Left Column: Avatar Editor Preview */}
