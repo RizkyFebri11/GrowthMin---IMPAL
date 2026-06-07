@@ -61,7 +61,7 @@ export const useDashboardData = (currentUser) => {
           .sort((a,b) => b.revenueNum - a.revenueNum)
           .map(u => ({
             ...u,
-            revenue: u.revenueNum >= 1000000000 ? `Rp ${(u.revenueNum/1000000000).toFixed(1)}B` : u.revenueNum >= 1000000 ? `Rp ${(u.revenueNum/1000000).toFixed(1)}M` : `Rp ${u.revenueNum.toLocaleString()}`
+            revenue: u.revenueNum >= 1000000000 ? `Rp ${(u.revenueNum/1000000000).toFixed(1)}M` : u.revenueNum >= 1000000 ? `Rp ${(u.revenueNum/1000000).toFixed(1)}Jt` : `Rp ${u.revenueNum.toLocaleString('id-ID')}`
           }));
         setLeaderboard(sortedLeaderboard);
       }

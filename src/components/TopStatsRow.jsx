@@ -50,8 +50,8 @@ const TopStatsRow = ({ currentUser }) => {
   }, [currentUser]);
 
   const formatRp = (val) => {
-    if (val >= 1000000000) return `Rp ${(val / 1000000000).toFixed(1)}B`;
-    if (val >= 1000000) return `Rp ${(val / 1000000).toFixed(1)}M`;
+    if (val >= 1000000000) return `Rp ${(val / 1000000000).toFixed(1)}M`;
+    if (val >= 1000000) return `Rp ${(val / 1000000).toFixed(1)}Jt`;
     return `Rp ${val.toLocaleString('id-ID')}`;
   };
 

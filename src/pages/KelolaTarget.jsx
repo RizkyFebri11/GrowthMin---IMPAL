@@ -48,7 +48,7 @@ const KelolaTarget = ({ currentUser }) => {
             role: user.role === 'manajer' ? 'Manager' : 'Staff',
             leads: t.target_leads || 0,
             closing: t.target_closing || 0,
-            revenue: t.target_revenue >= 1000000000 ? `Rp ${(t.target_revenue/1000000000).toFixed(1)}B` : t.target_revenue >= 1000000 ? `Rp ${(t.target_revenue/1000000).toFixed(1)}M` : `Rp ${Number(t.target_revenue).toLocaleString()}`,
+            revenue: t.target_revenue >= 1000000000 ? `Rp ${(t.target_revenue/1000000000).toFixed(1)}M` : t.target_revenue >= 1000000 ? `Rp ${(t.target_revenue/1000000).toFixed(1)}Jt` : `Rp ${Number(t.target_revenue).toLocaleString('id-ID')}`,
             roas: `${t.target_roas || 0}x`,
             progress: progressPercent
           };
