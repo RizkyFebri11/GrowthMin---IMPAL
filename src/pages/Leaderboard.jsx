@@ -5,7 +5,7 @@ import { supabase } from '../config/supabase';
 const Leaderboard = ({ currentUser }) => {
   const [logs, setLogs] = useState([]);
   const [users, setUsers] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState('all');
+  const [selectedMonth, setSelectedMonth] = useState('current');
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = async () => {
@@ -56,7 +56,8 @@ const Leaderboard = ({ currentUser }) => {
   const filteredLogs = logs.filter(log => {
     if (selectedMonth === 'all') return true;
     const logDate = new Date(log.tanggal);
-    return logDate.getMonth() + 1 === Number(selectedMonth);
+    const now = new Date();
+    return logDate.getMonth() === now.getMonth() && logDate.getFullYear() === now.getFullYear();
   });
 
   // Compute leaderboard values
@@ -98,13 +99,7 @@ const Leaderboard = ({ currentUser }) => {
   });
   const chartData = Object.values(monthlyStats).sort((a,b) => months.indexOf(a.name) - months.indexOf(b.name));
 
-  const getMonthName = (m) => {
-    const names = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-    ];
-    return names[Number(m) - 1] || '';
-  };
+
 
   return (
     <div className="animate-in fade-in duration-300 flex flex-col gap-6">
@@ -130,29 +125,29 @@ const Leaderboard = ({ currentUser }) => {
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h3 className="font-bold text-lg text-slate-800">
-            {selectedMonth === 'all' ? 'Leaderboard Keseluruhan' : `Leaderboard Bulan ${getMonthName(selectedMonth)}`}
+            {selectedMonth === 'all' ? 'Leaderboard Keseluruhan' : 'Leaderboard Bulan Ini'}
           </h3>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Filter:</span>
-            <select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-              className="p-2 border border-slate-200 rounded-lg text-sm bg-white font-medium text-slate-700 outline-none focus:border-indigo-500 shadow-sm"
+          <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
+            <button
+              onClick={() => setSelectedMonth('current')}
+              className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                selectedMonth === 'current'
+                  ? 'bg-white text-slate-800 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
             >
-              <option value="all">Semua Bulan (Keseluruhan)</option>
-              <option value="1">Januari</option>
-              <option value="2">Februari</option>
-              <option value="3">Maret</option>
-              <option value="4">April</option>
-              <option value="5">Mei</option>
-              <option value="6">Juni</option>
-              <option value="7">Juli</option>
-              <option value="8">Agustus</option>
-              <option value="9">September</option>
-              <option value="10">Oktober</option>
-              <option value="11">November</option>
-              <option value="12">Desember</option>
-            </select>
+              Bulan Ini
+            </button>
+            <button
+              onClick={() => setSelectedMonth('all')}
+              className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                selectedMonth === 'all'
+                  ? 'bg-white text-slate-800 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              Keseluruhan
+            </button>
           </div>
         </div>
         <table className="w-full text-left">
