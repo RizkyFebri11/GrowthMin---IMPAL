@@ -1,7 +1,7 @@
 # README.md
 
 Markdown
-# 🚀 Tugas Besar: [Nama Proyek]
+# 🚀 Tugas Besar: GrowthMin
 
 > **Dosen Pengampu:** Muhammad Shiddiq Azis, S.T., MBA
 
