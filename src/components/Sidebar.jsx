@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Target, Trophy, LogOut, FileText, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, Target, Trophy, LogOut, FileText, MessageSquare, X } from 'lucide-react';
 
-const Sidebar = ({ activeTab, setActiveTab, onLogout, currentUser }) => {
+const Sidebar = ({ activeTab, setActiveTab, onLogout, currentUser, sidebarOpen, setSidebarOpen }) => {
   const isManager = currentUser?.role === 'manajer';
   const [avatarUrl, setAvatarUrl] = useState(`https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.nama || 'U')}&background=4F46E5&color=fff&bold=true`);
 
@@ -41,10 +41,18 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, currentUser }) => {
   }, [currentUser]);
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-100 fixed h-full flex flex-col z-20">
+    <aside className={`w-64 bg-white border-r border-slate-100 fixed h-full flex flex-col z-40 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
       <div className="p-6">
-        <div className="h-32 w-full flex items-center justify-center mb-6">
-          <img src="/Logo GrowthMin.png" alt="GrowthMin Logo" className="h-full w-full object-contain scale-110" />
+        <div className="flex justify-between items-center mb-6">
+          <div className="h-24 w-full flex items-center justify-center">
+            <img src="/Logo GrowthMin.png" alt="GrowthMin Logo" className="h-full w-full object-contain scale-110" />
+          </div>
+          <button 
+            onClick={() => setSidebarOpen(false)}
+            className="p-1.5 text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-lg lg:hidden flex-shrink-0"
+          >
+            <X size={18} />
+          </button>
         </div>
         <nav className="space-y-2">
           <button

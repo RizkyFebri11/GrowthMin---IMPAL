@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, MessageSquare, TrendingUp } from 'lucide-react';
+import { Bell, MessageSquare, TrendingUp, Menu } from 'lucide-react';
 import { supabase } from '../config/supabase';
 
-const Topbar = ({ activeTab, currentUser }) => {
+const Topbar = ({ activeTab, currentUser, setSidebarOpen }) => {
   const firstName = currentUser.nama.split(' ')[0];
   const [formattedDate, setFormattedDate] = useState('');
   const [notifications, setNotifications] = useState([]);
@@ -202,19 +202,27 @@ const Topbar = ({ activeTab, currentUser }) => {
   };
 
   return (
-    <header className="flex justify-between items-start mb-8">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">
-          {activeTab === 'dashboard' ? `Halo, ${firstName}!` : 
-           activeTab === 'targets' ? 'Manajemen Target' : 
-           activeTab === 'tracking' ? 'Input Tracking' :
-           activeTab === 'evaluasi' ? 'Evaluasi Mingguan' :
-           activeTab === 'profile' ? 'Pengaturan Profil' :
-           'Leaderboard'}
-        </h1>
-        <p className="text-xs text-slate-500 mt-1">
-          {formattedDate || 'Memuat tanggal...'}
-        </p>
+    <header className="flex justify-between items-start mb-8 gap-4">
+      <div className="flex items-center gap-3">
+        <button 
+          onClick={() => setSidebarOpen(true)}
+          className="p-2 text-slate-500 hover:text-slate-700 bg-white border border-slate-200 rounded-xl lg:hidden shadow-sm flex-shrink-0"
+        >
+          <Menu size={20} />
+        </button>
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 leading-tight">
+            {activeTab === 'dashboard' ? `Halo, ${firstName}!` : 
+             activeTab === 'targets' ? 'Manajemen Target' : 
+             activeTab === 'tracking' ? 'Input Tracking' :
+             activeTab === 'evaluasi' ? 'Evaluasi Mingguan' :
+             activeTab === 'profile' ? 'Pengaturan Profil' :
+             'Leaderboard'}
+          </h1>
+          <p className="text-[10px] sm:text-xs text-slate-500 mt-1">
+            {formattedDate || 'Memuat tanggal...'}
+          </p>
+        </div>
       </div>
       <div className="flex items-center gap-4">
         {/* Notification Bell Dropdown */}
@@ -263,9 +271,9 @@ const Topbar = ({ activeTab, currentUser }) => {
           )}
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-1.5 pr-4 flex items-center gap-3 shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-xl p-1.5 sm:pr-4 flex items-center gap-3 shadow-sm">
           <img src={avatarUrl} alt="Profile" className="w-8 h-8 rounded-lg object-cover" />
-          <div>
+          <div className="hidden sm:block">
             <p className="text-sm font-bold text-slate-800 leading-none">{currentUser.nama.length > 20 ? currentUser.nama.substring(0, 17) + '...' : currentUser.nama}</p>
             <p className="text-[10px] text-slate-400 uppercase font-semibold mt-0.5">{currentUser.tim} Team</p>
           </div>

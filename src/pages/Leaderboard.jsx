@@ -80,10 +80,10 @@ const Leaderboard = ({ currentUser }) => {
     .sort((a, b) => b.revenueNum - a.revenueNum)
     .map(u => ({
       ...u,
-      revenue: u.revenueNum >= 1000000000 
-        ? `Rp ${(u.revenueNum/1000000000).toFixed(1)}M` 
-        : u.revenueNum >= 1000000 
-          ? `Rp ${(u.revenueNum/1000000).toFixed(1)}Jt` 
+      revenue: u.revenueNum >= 1000000000
+        ? `Rp ${(u.revenueNum / 1000000000).toFixed(1)}M`
+        : u.revenueNum >= 1000000
+          ? `Rp ${(u.revenueNum / 1000000).toFixed(1)}Jt`
           : `Rp ${u.revenueNum.toLocaleString('id-ID')}`
     }));
 
@@ -97,7 +97,7 @@ const Leaderboard = ({ currentUser }) => {
     monthlyStats[m].Revenue += (Number(log.nominal_revenue) || 0) / 1000000;
     monthlyStats[m].Leads += Number(log.jml_leads) || 0;
   });
-  const chartData = Object.values(monthlyStats).sort((a,b) => months.indexOf(a.name) - months.indexOf(b.name));
+  const chartData = Object.values(monthlyStats).sort((a, b) => months.indexOf(a.name) - months.indexOf(b.name));
 
 
 
@@ -130,51 +130,51 @@ const Leaderboard = ({ currentUser }) => {
           <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
             <button
               onClick={() => setSelectedMonth('current')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                selectedMonth === 'current'
+              className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${selectedMonth === 'current'
                   ? 'bg-white text-slate-800 shadow-sm'
                   : 'text-slate-500 hover:text-slate-800'
-              }`}
+                }`}
             >
               Bulan Ini
             </button>
             <button
               onClick={() => setSelectedMonth('all')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                selectedMonth === 'all'
+              className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${selectedMonth === 'all'
                   ? 'bg-white text-slate-800 shadow-sm'
                   : 'text-slate-500 hover:text-slate-800'
-              }`}
+                }`}
             >
               Keseluruhan
             </button>
           </div>
         </div>
-        <table className="w-full text-left">
-          <thead className="bg-slate-50/50">
-            <tr className="text-slate-500 text-xs">
-              <th className="px-6 py-4 font-medium">Rank</th>
-              <th className="px-6 py-4 font-medium">Staff</th>
-              <th className="px-6 py-4 font-medium text-center">Leads</th>
-              <th className="px-6 py-4 font-medium">Revenue</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {sortedLeaderboard.length === 0 ? (
-              <tr><td colSpan="4" className="px-6 py-4 text-center text-slate-500">Belum ada data untuk bulan ini</td></tr>
-            ) : sortedLeaderboard.map((u, i) => (
-              <tr key={u.id} className="hover:bg-slate-50">
-                <td className="px-6 py-4 font-bold text-slate-800">{i + 1}.</td>
-                <td className="px-6 py-4 flex items-center gap-3">
-                  <img src={u.avatar} alt={u.nama} className="w-8 h-8 rounded-full bg-slate-200" />
-                  <span className="font-medium text-slate-700 text-sm">{u.nama}</span>
-                </td>
-                <td className="px-6 py-4 text-center text-slate-700 text-sm font-medium">{u.leads}</td>
-                <td className="px-6 py-4 font-bold text-slate-800 text-sm">{u.revenue}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[500px]">
+            <thead className="bg-slate-50/50">
+              <tr className="text-slate-500 text-xs">
+                <th className="px-6 py-4 font-medium">Rank</th>
+                <th className="px-6 py-4 font-medium">Staff</th>
+                <th className="px-6 py-4 font-medium text-center">Leads</th>
+                <th className="px-6 py-4 font-medium">Revenue</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {sortedLeaderboard.length === 0 ? (
+                <tr><td colSpan="4" className="px-6 py-4 text-center text-slate-500">Belum ada data untuk bulan ini</td></tr>
+              ) : sortedLeaderboard.map((u, i) => (
+                <tr key={u.id} className="hover:bg-slate-50">
+                  <td className="px-6 py-4 font-bold text-slate-800">{i + 1}.</td>
+                  <td className="px-6 py-4 flex items-center gap-3">
+                    <img src={u.avatar} alt={u.nama} className="w-8 h-8 rounded-full bg-slate-200" />
+                    <span className="font-medium text-slate-700 text-sm">{u.nama}</span>
+                  </td>
+                  <td className="px-6 py-4 text-center text-slate-700 text-sm font-medium">{u.leads}</td>
+                  <td className="px-6 py-4 font-bold text-slate-800 text-sm">{u.revenue}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
