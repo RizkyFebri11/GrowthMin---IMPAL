@@ -4,6 +4,7 @@ import { supabase } from '../config/supabase';
 export const useDashboardData = (currentUser) => {
   const [chartData, setChartData] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
+  const [leaderboardMonthly, setLeaderboardMonthly] = useState([]);
   const [evaluations, setEvaluations] = useState([]);
   const [targetProgress, setTargetProgress] = useState({ targetRevenue: 0, actualRevenue: 0, percentage: 0, shortfall: 0 });
   const [isLoading, setIsLoading] = useState(true);
@@ -105,8 +106,10 @@ export const useDashboardData = (currentUser) => {
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const monthlyStats = {};
         const userStats = {};
+        const userStatsMonthly = {};
 
         logsData.forEach(log => {
+          // Overall stats
           if (!userStats[log.id_user]) {
             userStats[log.id_user] = {
               id: log.id_user,
@@ -118,6 +121,22 @@ export const useDashboardData = (currentUser) => {
           }
           userStats[log.id_user].leads += Number(log.jml_leads) || 0;
           userStats[log.id_user].revenueNum += Number(log.nominal_revenue) || 0;
+
+          // Monthly stats
+          const logDate = new Date(log.tanggal);
+          if (logDate.getMonth() + 1 === curMonth && logDate.getFullYear() === curYear) {
+            if (!userStatsMonthly[log.id_user]) {
+              userStatsMonthly[log.id_user] = {
+                id: log.id_user,
+                nama: usersMap[log.id_user]?.nama || 'Unknown',
+                avatar: usersMap[log.id_user]?.avatar || '',
+                leads: 0,
+                revenueNum: 0
+              };
+            }
+            userStatsMonthly[log.id_user].leads += Number(log.jml_leads) || 0;
+            userStatsMonthly[log.id_user].revenueNum += Number(log.nominal_revenue) || 0;
+          }
 
           if (currentUser?.role === 'staff' && log.id_user !== currentUser?.id_user) {
             return; 
@@ -141,6 +160,14 @@ export const useDashboardData = (currentUser) => {
             revenue: u.revenueNum >= 1000000000 ? `Rp ${(u.revenueNum/1000000000).toFixed(1)}M` : u.revenueNum >= 1000000 ? `Rp ${(u.revenueNum/1000000).toFixed(1)}Jt` : `Rp ${u.revenueNum.toLocaleString('id-ID')}`
           }));
         setLeaderboard(sortedLeaderboard);
+
+        const sortedLeaderboardMonthly = Object.values(userStatsMonthly)
+          .sort((a,b) => b.revenueNum - a.revenueNum)
+          .map(u => ({
+            ...u,
+            revenue: u.revenueNum >= 1000000000 ? `Rp ${(u.revenueNum/1000000000).toFixed(1)}M` : u.revenueNum >= 1000000 ? `Rp ${(u.revenueNum/1000000).toFixed(1)}Jt` : `Rp ${u.revenueNum.toLocaleString('id-ID')}`
+          }));
+        setLeaderboardMonthly(sortedLeaderboardMonthly);
       }
 
       // Fetch evaluations & kpi relation
@@ -226,5 +253,5 @@ export const useDashboardData = (currentUser) => {
     }
   }, [currentUser]);
 
-  return { chartData, leaderboard, evaluations, targetProgress, isLoading };
+  return { chartData, leaderboard, leaderboardMonthly, evaluations, targetProgress, isLoading };
 };

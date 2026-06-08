@@ -6,8 +6,11 @@ import { useDashboardData } from '../hooks/useDashboardData';
 import Modal from '../components/Modal';
 
 const Dashboard = ({ currentUser }) => {
-  const { chartData, leaderboard, evaluations, targetProgress, isLoading } = useDashboardData(currentUser);
+  const { chartData, leaderboard, leaderboardMonthly, evaluations, targetProgress, isLoading } = useDashboardData(currentUser);
   const [modal, setModal] = useState({ isOpen: false, type: 'success', title: '', message: '' });
+  const [selectedMonth, setSelectedMonth] = useState('current');
+
+  const activeLeaderboard = selectedMonth === 'all' ? leaderboard : leaderboardMonthly;
 
   if (isLoading) return <div className="p-10 flex justify-center"><div className="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full"></div></div>;
 
@@ -94,8 +97,30 @@ const Dashboard = ({ currentUser }) => {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-        <div className="p-5 border-b border-slate-100">
-          <h3 className="font-bold text-lg text-slate-800">Leaderboard Bulan Ini</h3>
+        <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h3 className="font-bold text-lg text-slate-800">
+            {selectedMonth === 'all' ? 'Leaderboard Keseluruhan' : 'Leaderboard Bulan Ini'}
+          </h3>
+          <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
+            <button
+              onClick={() => setSelectedMonth('current')}
+              className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${selectedMonth === 'current'
+                  ? 'bg-white text-slate-800 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800'
+                }`}
+            >
+              Bulan Ini
+            </button>
+            <button
+              onClick={() => setSelectedMonth('all')}
+              className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${selectedMonth === 'all'
+                  ? 'bg-white text-slate-800 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800'
+                }`}
+            >
+              Keseluruhan
+            </button>
+          </div>
         </div>
         <table className="w-full text-left">
           <thead className="bg-slate-50/50">
@@ -107,7 +132,7 @@ const Dashboard = ({ currentUser }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {leaderboard.length === 0 ? <tr><td colSpan="4" className="px-6 py-4 text-center text-slate-500">Belum ada data</td></tr> : leaderboard.map((u, i) => (
+            {activeLeaderboard.length === 0 ? <tr><td colSpan="4" className="px-6 py-4 text-center text-slate-500">Belum ada data</td></tr> : activeLeaderboard.map((u, i) => (
               <tr key={u.id}>
                 <td className="px-6 py-4 font-bold text-slate-800">{i + 1}.</td>
                 <td className="px-6 py-4 flex items-center gap-3">
