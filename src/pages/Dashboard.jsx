@@ -5,7 +5,7 @@ import TopStatsRow from '../components/TopStatsRow';
 import { useDashboardData } from '../hooks/useDashboardData';
 import Modal from '../components/Modal';
 
-const Dashboard = ({ currentUser }) => {
+const Dashboard = ({ currentUser, setActiveTab }) => {
   const { chartData, leaderboard, leaderboardMonthly, evaluations, targetProgress, isLoading } = useDashboardData(currentUser);
   const [modal, setModal] = useState({ isOpen: false, type: 'success', title: '', message: '' });
   const [selectedMonth, setSelectedMonth] = useState('current');
@@ -49,10 +49,13 @@ const Dashboard = ({ currentUser }) => {
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
+          <div 
+            onClick={() => setActiveTab && setActiveTab('evaluasi')} 
+            className="flex items-center gap-2 cursor-pointer hover:text-indigo-600 transition-colors group"
+          >
             <MessageSquare size={18} className="text-indigo-600" />
-            <h3 className="font-bold text-sm text-slate-800 uppercase">Catatan Evaluasi</h3>
-            <ChevronRight size={16} className="text-slate-400" />
+            <h3 className="font-bold text-sm text-slate-800 group-hover:text-indigo-600 transition-colors uppercase">Catatan Evaluasi</h3>
+            <ChevronRight size={16} className="text-slate-400 group-hover:text-indigo-600 transition-colors" />
           </div>
           
           <div className="flex-1 space-y-3">

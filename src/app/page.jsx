@@ -31,7 +31,7 @@ const App = () => {
       <main className="flex-1 ml-64 p-8">
         <Topbar activeTab={activeTab} currentUser={currentUser} />
 
-        {activeTab === 'dashboard' && <Dashboard currentUser={currentUser} />}
+        {activeTab === 'dashboard' && <Dashboard currentUser={currentUser} setActiveTab={setActiveTab} />}
         {activeTab === 'targets' && <KelolaTarget currentUser={currentUser} />}
         {activeTab === 'tracking' && <InputTracking currentUser={currentUser} />}
         {activeTab === 'leaderboard' && <Leaderboard currentUser={currentUser} />}
