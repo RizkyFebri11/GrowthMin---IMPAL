@@ -7,7 +7,7 @@ import Modal from '../components/Modal';
 const KelolaTarget = ({ currentUser }) => {
   const [targets, setTargets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [newStaff, setNewStaff] = useState({ name: '', role: 'Staff', targetRevenue: '', startDate: '', endDate: '' });
+  const [newStaff, setNewStaff] = useState({ name: '', role: 'Staff', targetRevenue: '' });
   const [errorMsg, setErrorMsg] = useState('');
   const [modal, setModal] = useState({ isOpen: false, type: 'info', title: '', message: '' });
 
@@ -318,21 +318,12 @@ const KelolaTarget = ({ currentUser }) => {
   const handleAddStaff = async () => {
     setErrorMsg('');
     
-    if (newStaff.startDate && newStaff.endDate) {
-        const start = new Date(newStaff.startDate);
-        const end = new Date(newStaff.endDate);
-        if (end < start) {
-            setErrorMsg('Tanggal Selesai tidak boleh lebih cepat daripada Tanggal Mulai!');
-            return;
-        }
-    }
-
     if (newStaff.targetRevenue && /[^0-9]/.test(newStaff.targetRevenue)) {
         setErrorMsg('Target Revenue hanya boleh berisi nominal angka (jangan gunakan titik/simbol spesial)!');
         return;
     }
 
-    if (!newStaff.name || !newStaff.role || !newStaff.targetRevenue || !newStaff.startDate || !newStaff.endDate) {
+    if (!newStaff.name || !newStaff.role || !newStaff.targetRevenue) {
         setErrorMsg('Semua isian tidak boleh kosong!');
         return;
     }
@@ -359,8 +350,9 @@ const KelolaTarget = ({ currentUser }) => {
       }
 
       // 2. Insert target
-      const targetBulan = new Date(newStaff.startDate).getMonth() + 1;
-      const targetTahun = new Date(newStaff.startDate).getFullYear();
+      const now = new Date();
+      const targetBulan = now.getMonth() + 1;
+      const targetTahun = now.getFullYear();
       
       const { error: targetError } = await supabase
         .from('targets')
@@ -381,7 +373,7 @@ const KelolaTarget = ({ currentUser }) => {
       }
 
       setModal({ isOpen: true, type: 'success', title: 'Berhasil', message: 'Staff baru dan targetnya berhasil ditambahkan ke database!' });
-      setNewStaff({ name: '', role: 'Staff', targetRevenue: '', startDate: '', endDate: '' });
+      setNewStaff({ name: '', role: 'Staff', targetRevenue: '' });
       fetchTargetsData();
     } catch (e) {
       console.error(e);
@@ -481,16 +473,6 @@ const KelolaTarget = ({ currentUser }) => {
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">Target Revenue (Rp)</label>
                 <input value={newStaff.targetRevenue} onChange={e => setNewStaff({...newStaff, targetRevenue: e.target.value})} type="text" placeholder="Contoh: 10000000" className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:border-indigo-500" />
-              </div>
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Start Date</label>
-                  <input value={newStaff.startDate} onChange={e => setNewStaff({...newStaff, startDate: e.target.value})} type="date" className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:border-indigo-500" />
-                </div>
-                <div className="flex-1">
-                  <label className="block text-xs font-medium text-slate-700 mb-1">End Date</label>
-                  <input value={newStaff.endDate} onChange={e => setNewStaff({...newStaff, endDate: e.target.value})} type="date" className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:border-indigo-500" />
-                </div>
               </div>
               <button onClick={handleAddStaff} type="button" className="w-full bg-[#2D2B52] hover:bg-indigo-900 text-white font-medium py-2.5 rounded-lg text-sm transition-colors mt-2">
                 Tambah
