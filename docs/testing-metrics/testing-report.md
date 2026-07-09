@@ -62,25 +62,22 @@ Berikut adalah 15 skenario pengujian yang dijalankan secara manual:
 
 ## **• Hasil: 1 bug per fitur** 
 
-## **Langkah 4 – Dokumentasi Bukti** 
+Langkah 4 – Dokumentasi Bukti
 
-1. [Screenshot 1: Halaman Login GrowthMin] : 
+1. [Screenshot 1: Halaman Login GrowthMin] :
+![Halaman Login](../images/img1.jpeg)
 
-**==> picture [432 x 11] intentionally omitted <==**
+2. [Screenshot 2: Dashboard Manajer & Kelola Target] :
+![Dashboard Manajer](../images/img2.jpeg)
 
-**----- Start of picture text -----**<br>
-2. [Screenshot 2: Dashboard Manajer & Kelola Target] :<br>**----- End of picture text -----**<br>
+3. [Screenshot 3: Form Tracking Harian] :
+![Form Tracking](../images/img3.jpeg)
 
+4. [Screenshot 4: Bug Input Negatif] :
+![Bug Input Negatif](../images/img4.jpeg)
 
-**==> picture [432 x 11] intentionally omitted <==**
-
-**----- Start of picture text -----**<br>
-3. [Screenshot 3: Form Tracking Harian] :<br>**----- End of picture text -----**<br>
-
-
-4. [Screenshot 4: Bug Input Negatif] : 
-
-5. [Screenshot 5: Bug Peringatan Merah] : 
+5. [Screenshot 5: Bug Peringatan Merah] :
+![Bug Peringatan Merah](../images/img5.jpeg)
 
 ## **Langkah 5 – Analisis** 
 
