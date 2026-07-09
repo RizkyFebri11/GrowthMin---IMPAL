@@ -95,6 +95,8 @@ Secara fungsionalitas inti (otentikasi, input data, dan pembacaan grafik), aplik
 
 ## **Nilai Tambahan – Tools Test** 
 
+![Test SS](../images/img6.jpeg)
+
 Berdasarkan hasil pengujian di atas, seluruh test suite berhasil dilewati dengan status PASS dalam waktu 0.289 detik. Terdapat dua skenario utama yang diuji pada Class Controller API ini: 
 
 1.  Skenario  Valid:  Sistem  berhasil  menyimulasikan  perhitungan  ROAS  dengan  benar  dan mengembalikan status kode sukses (HTTP 201). 
